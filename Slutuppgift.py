@@ -1,10 +1,10 @@
 from datetime import datetime 
 ## KLASSER ##
-class customer:
-    def __init__(self, name, phone, email):
+class Customer:
+    def __init__(self, name, email, phone ):
         self.name = name
-        self.phone = phone 
         self.email = email
+        self.phone = phone 
         self.interactions = []
         self.last_interaction = None
 
@@ -29,45 +29,99 @@ class customer:
         return diffrence.days
 
 
-# customer = customer("Ahmed Awais", "Ahmedawaiis@hotmail.com", "0762133117")
-# print(f"Kundens namn: {customer.name}")
-# print(f"Antal dagar sedan senaste interaktion: {customer.calculate_days_since_last_interaction()}")  # Borde vara None
-
-# print("lägger till en interaktion: Gillat inlägg")
-# customer.add_interaction("Gillat ett inlägg")
-# print(f"Senaste interaktion: {customer.last_interaction}")
-
-
-# days = customer.calculate_days_since_last_interaction()
-
-# print(f"Antal dagar sedan senaste interaktion: {days}")  # Bör vara 0 om samma dag       
-
 class CustomerDataSystem:
     def __init__(self, name):
         self.name = name
         self.customers = []       
-    
-    def add_customer(self,customer):
-        self.customers.append(customer)
-        print(f"Ny kund med namn {customer.name} har lagts till.")
-    def remove_customer(self, name):
+    #Lägger till ny kund 
+    def add_customer(self, name, email, phone):
+        #Loppar igenom och kollar om eposten redan finns
+        for customer in self.customers:
+            if customer.email == email:
+                ## Finns eposten redan kommer det här felmeddelnadet
+                raise ValueError (f"Det här e-posten {email} finns redan.")
+        new_customer = Customer(name, email, phone)
+        self.customers.append(new_customer)
+        print(f"{name} du är nu en ny kund!")
+
+    #Tar bort en kund 
+    def remove_customer(self, email):
         # Loopar igenom listan för att hitta kunden
         for customer in self.customers:
-            if customer.name == name:
+            if customer.email == email:
                 self.customers.remove(customer)
-                print(f"Kunden med namn {name} har tagits bort.")
+                print(f"Kunden med epost {email} har nu tagits bort.")
                 return
-        print(f"Ingen kund med namn {name} hittades.")
+            # Felmeddelandet kommer upp om kund ej finns i listan
+        raise KeyError (f"Kunden med epost{email} hittades inte.")
+        
+# Uppdaterar info på den kund
+    def update_contact_info(self, name, email, new_email = None, new_phone = None):
+        for customer in self.customers:
+            if customer.email == email:
+                if new_email: 
+                    customer.email == new_email
+                    print(f"{name}s epost har uppdaterats till {new_email}.")
+                if new_phone:
+                    customer.phone = new_phone
+                    print(f"{name}s telefonnummer har uppdaterats till {new_phone}.")
+                return
+        raise KeyError (f"{name}s epost med {email} hittades inte.")
 
-# Exempel på användning
-print("Skapar kundhanteringssystemet...")
-system = CustomerDataSystem("Mitt Företag")
+    def add_interaction_for_customer(self, email, interaction):
+        
+        for customer in self.customers:
+            #print(f"Check {customer.email} är {email}.")
+            if customer.email == email:
+                customer.add_interaction(interaction)
+                print(f"Interaktion {interaction} har lagts till för {email}.")
+                return
+        raise KeyError(f"Ingen kund med epost {email} hittades.")
 
-# Skapa kunder
-customer1 = customer("Anna Andersson", "anna@example.com", "0701234567")
-customer2 = customer("Bengt Bengtsson", "bengt@example.com", "0707654321")
+    ## Hämtar alla interaktioner för en kund.
+    def get_interactions_for_customer(self, email):
+        
+        for customer in self.customers:
+            if customer.email == email:
+                print(f"Interaktioner för kund med {email}:")
+                ## Visar varje interaktion och när de gjordes
+                for interaction, date in customer.interactions:
+                    print(f" {interaction} datum: {date}")  
+                return
+        raise KeyError (f"Kundens email {email} hittades inte")
 
-# Lägg till kunder
-print("Lägger till kunder...")
-system.add_customer(customer1)
-system.add_customer(customer2)
+    def list_all_customers(self):
+        
+        # Skriver ut en lista över alla kunder i systemet.
+
+        print(f"Alla kunder i systemet '{self.name}':")
+        if not self.customers:
+            print("Det finns inga kunder i systemet.")
+        for customer in self.customers:
+            print(f" Namn: {customer.name}, E-post: {customer.email}, Telefon: {customer.phone}")
+
+# Enkel användning av systemet
+print("Skapar kundsystemet.")
+system = CustomerDataSystem("AWAIS AB")
+
+print("\nLägger till kunder.")
+system.add_customer("Ahmed Awais", "Ahmedawaiis@hotmail.com", "0762133117")
+system.add_customer("Gabriel Mousa", "GabrielMousa@hotmail.com", "0762137131")
+
+print("\nVisar alla kunder:")
+system.list_all_customers()
+
+print("\nLägger till en interaktion för Ahmed")
+system.add_interaction_for_customer("Ahmedawaiis@hotmail.com", "Gillat ett inlägg")
+
+print("\nVisar Ahmeds interaktioner:")
+system.get_interactions_for_customer("Ahmedawaiis@hotmail.com")
+
+print("\nUppdaterar Gabriels kontaktinformation.")
+system.update_contact_info("Gabriel Mousa", "GabrielMousa@hotmail.com", new_phone="07123456789")
+
+print("\nTar bort Ahmed från kundlistan")
+system.remove_customer("Ahmedawaiis@hotmail.com")
+
+print("\nVisar alla kunder efter borttagning:")
+system.list_all_customers()
