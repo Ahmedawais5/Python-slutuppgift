@@ -107,7 +107,10 @@ system = CustomerDataSystem("AWAIS AB")
 print("\nLägger till kunder.")
 system.add_customer("Ahmed Awais", "Ahmedawaiis@hotmail.com", "0762133117")
 system.add_customer("Gabriel Mousa", "GabrielMousa@hotmail.com", "0762137131")
-
+try:
+    system.add_customer("Gabriel Mousa", "GabrielMousa@hotmail.com", "0762137131")
+except ValueError as e: 
+    print(e)
 print("\nVisar alla kunder:")
 system.list_all_customers()
 
