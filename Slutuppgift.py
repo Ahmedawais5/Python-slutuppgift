@@ -1,4 +1,4 @@
-from datetime import datetime 
+from datetime import datetime, timedelta 
 ## KLASSER ##
 class Customer:
     def __init__(self, name, email, phone ):
@@ -27,6 +27,12 @@ class Customer:
         # Skillnaden mellan senaste interaktionen och nutid
         diffrence= datetime.now() - self.last_interaction
         return diffrence.days
+    
+    def is_inactive(self, days=30):
+        days_since = self.calculate_days_since_last_interaction()
+        if days_since is None:
+            return False
+        return days_since > days
 
 
 class CustomerDataSystem:
@@ -100,6 +106,18 @@ class CustomerDataSystem:
         for customer in self.customers:
             print(f" Namn: {customer.name}, E-post: {customer.email}, Telefon: {customer.phone}")
 
+    def list_inactive_customers(self, days=30):
+        print (f"Kunder som har varit inatkiva i mer än {days} dagar.")
+        found_inactive = False
+        for customer in self.customers:
+            if customer.is_inactive(days):
+                days_since = customer.calculate_days_since_last_interaction()
+                print(f"- Namn: {customer.name}, Dagar sedan senaste interaktion: {days_since}")
+                found_inactive = True
+        if not found_inactive: 
+            print("Inga inaktiva kunder hittades.")
+
+
 # Enkel användning av systemet
 print("Skapar kundsystemet.")
 system = CustomerDataSystem("AWAIS AB")
@@ -116,6 +134,13 @@ system.list_all_customers()
 
 print("\nLägger till en interaktion för Ahmed")
 system.add_interaction_for_customer("Ahmedawaiis@hotmail.com", "Gillat ett inlägg")
+
+print("\nLägger till en gammal interaktion för Gabriel.")
+system.add_interaction_for_customer("GabrielMousa@hotmail.com", "Besökt webbplats")
+system.customers[1].last_interaction -= timedelta(days=31)
+
+print("\nLista över inaktiva kunder:")
+system.list_inactive_customers()
 
 print("\nVisar Ahmeds interaktioner:")
 system.get_interactions_for_customer("Ahmedawaiis@hotmail.com")
